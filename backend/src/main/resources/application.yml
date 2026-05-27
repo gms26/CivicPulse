@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  # ==================== DataSource ====================
+  datasource:
+    url: jdbc:postgresql://localhost:5432/civic
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:gms26}
+    driver-class-name: org.postgresql.Driver
+
+  # ==================== JPA / Hibernate ====================
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    # Run data.sql AFTER Hibernate creates/updates tables
+    defer-datasource-initialization: true
+
+  # ==================== SQL Init (data.sql seed) ====================
+  sql:
+    init:
+      mode: always
+
+  # ==================== Multipart File Upload ====================
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# ==================== JWT Configuration ====================
+app:
+  jwt:
+    secret: ${JWT_SECRET:Y2l2aWNwdWxzZS1qd3Qtc2VjcmV0LWtleS1tdXN0LWJlLWF0LWxlYXN0LTI1Ni1iaXRzLWxvbmctZm9yLWhzMjU2}
+    expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds
+
+# ==================== Cloudinary Configuration ====================
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:your_cloud_name}
+  api-key: ${CLOUDINARY_API_KEY:your_api_key}
+  api-secret: ${CLOUDINARY_API_SECRET:your_api_secret}
