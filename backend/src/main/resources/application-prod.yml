@@ -17,12 +17,13 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-    defer-datasource-initialization: false
+    # Run data.sql AFTER Hibernate creates/updates tables
+    defer-datasource-initialization: true
 
   # ==================== SQL Init (data.sql seed) ====================
   sql:
     init:
-      mode: never
+      mode: always
 
   # ==================== Multipart File Upload ====================
   servlet:
