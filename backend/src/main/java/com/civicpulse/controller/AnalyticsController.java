@@ -3,6 +3,7 @@ package com.civicpulse.controller;
 import com.civicpulse.dto.response.AnalyticsResponse;
 import com.civicpulse.service.AnalyticsService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/analytics")
+@CrossOrigin(origins = {
+        "https://civicpulse-frontend-3mb8.onrender.com",
+        "http://localhost:5173"
+})
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;

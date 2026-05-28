@@ -19,14 +19,14 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allow the specified frontend origin (local or prod)
+        // Allow the deployed frontend + local dev origins
         config.setAllowedOrigins(List.of(
                 frontendUrl,
-                "http://localhost:5173",
-                "http://localhost:3000" // Kept for alternate local dev
+                "https://civicpulse-frontend-3mb8.onrender.com",
+                "http://localhost:5173"
         ));
 
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);

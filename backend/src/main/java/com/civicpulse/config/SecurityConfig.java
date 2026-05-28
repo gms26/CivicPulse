@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -39,8 +39,8 @@ public class SecurityConfig {
             // Disable CSRF — REST API uses JWT, not cookies
             .csrf(AbstractHttpConfigurer::disable)
 
-            // Enable CORS (uses CorsConfig bean)
-            .cors(cors -> {})
+            // Enable CORS — auto-discovers CorsConfigurationSource bean
+            .cors(Customizer.withDefaults())
 
             // Stateless sessions — no server-side session
             .sessionManagement(session ->
@@ -49,6 +49,9 @@ public class SecurityConfig {
 
             // Endpoint authorization rules
             .authorizeHttpRequests(auth -> auth
+                // CRITICAL: Allow all OPTIONS preflight requests through
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/analytics/**").permitAll()
