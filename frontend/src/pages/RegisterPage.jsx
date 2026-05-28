@@ -9,7 +9,7 @@ export const RegisterPage = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    phoneNumber: '',
+    phone: '',
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -88,10 +88,10 @@ export const RegisterPage = () => {
               </div>
               <input
                 type="text"
-                name="phoneNumber"
+                name="phone"
                 className="pl-10 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                 placeholder="+1234567890"
-                value={formData.phoneNumber}
+                value={formData.phone}
                 onChange={handleChange}
               />
             </div>
