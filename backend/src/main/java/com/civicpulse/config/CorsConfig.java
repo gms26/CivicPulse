@@ -12,7 +12,7 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("${frontend.url:http://localhost:5173}")
+    @Value("${FRONTEND_URL:http://localhost:5173}")
     private String frontendUrl;
 
     @Bean
@@ -22,6 +22,7 @@ public class CorsConfig {
         // Allow the specified frontend origin (local or prod)
         config.setAllowedOrigins(List.of(
                 frontendUrl,
+                "http://localhost:5173",
                 "http://localhost:3000" // Kept for alternate local dev
         ));
 
