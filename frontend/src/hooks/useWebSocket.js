@@ -11,9 +11,12 @@ export const useWebSocket = (onMessageReceived) => {
     if (!token || !user) return;
 
     // Use absolute URL for SockJS based on environment
-    const socketUrl = import.meta.env.VITE_WS_URL 
+    let socketUrl = import.meta.env.VITE_WS_URL 
       ? `${import.meta.env.VITE_WS_URL}/ws` 
       : 'http://localhost:8080/ws';
+      
+    // SockJS requires HTTP/HTTPS protocols (it upgrades to WS internally)
+    socketUrl = socketUrl.replace(/^ws:\/\//i, 'http://').replace(/^wss:\/\//i, 'https://');
     
     const client = new Client({
       webSocketFactory: () => new SockJS(socketUrl),
