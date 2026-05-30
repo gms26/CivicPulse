@@ -86,6 +86,27 @@ export const CitizenDashboard = () => {
         </div>
       )}
 
+      {/* Pagination Controls */}
+      {!loading && totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button 
+            disabled={page === 0} 
+            onClick={() => setPage(p => p - 1)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-600">Page {page + 1} of {totalPages}</span>
+          <button 
+            disabled={page === totalPages - 1} 
+            onClick={() => setPage(p => p + 1)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
       <IssueDetailModal 
         isOpen={!!selectedIssue}
         onClose={() => setSelectedIssue(null)}
