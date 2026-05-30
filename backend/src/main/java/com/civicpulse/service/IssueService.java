@@ -10,6 +10,8 @@ import com.civicpulse.entity.enums.Priority;
 import com.civicpulse.exception.ResourceNotFoundException;
 import com.civicpulse.exception.UnauthorizedException;
 import com.civicpulse.repository.IssueRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import java.io.IOException;
 @Service
 public class IssueService {
 
+    private static final Logger log = LoggerFactory.getLogger(IssueService.class);
     private final IssueRepository issueRepository;
     private final CloudinaryService cloudinaryService;
 
@@ -31,27 +34,32 @@ public class IssueService {
 
     @Transactional
     public IssueResponse createIssue(IssueCreateRequest request, MultipartFile image, User reporter) throws IOException {
-        String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            imageUrl = cloudinaryService.uploadImage(image);
+        try {
+            String imageUrl = null;
+            if (image != null && !image.isEmpty()) {
+                imageUrl = cloudinaryService.uploadImage(image);
+            }
+
+            Issue issue = new Issue();
+            issue.setTitle(request.getTitle());
+            issue.setDescription(request.getDescription());
+            issue.setCategory(IssueCategory.valueOf(request.getCategory().toUpperCase()));
+            issue.setLocationAddress(request.getLocationAddress());
+            issue.setLatitude(request.getLatitude());
+            issue.setLongitude(request.getLongitude());
+            issue.setImageUrl(imageUrl);
+            issue.setReporter(reporter);
+            
+            // Defaults for a new issue
+            issue.setStatus(IssueStatus.OPEN);
+            issue.setPriority(Priority.LOW);
+
+            Issue savedIssue = issueRepository.save(issue);
+            return mapToResponse(savedIssue);
+        } catch (Exception e) {
+            log.error("Issue creation failed: {}", e.getMessage(), e);
+            throw e;
         }
-
-        Issue issue = new Issue();
-        issue.setTitle(request.getTitle());
-        issue.setDescription(request.getDescription());
-        issue.setCategory(IssueCategory.valueOf(request.getCategory().toUpperCase()));
-        issue.setLocationAddress(request.getLocationAddress());
-        issue.setLatitude(request.getLatitude());
-        issue.setLongitude(request.getLongitude());
-        issue.setImageUrl(imageUrl);
-        issue.setReporter(reporter);
-        
-        // Defaults for a new issue
-        issue.setStatus(IssueStatus.OPEN);
-        issue.setPriority(Priority.LOW);
-
-        Issue savedIssue = issueRepository.save(issue);
-        return mapToResponse(savedIssue);
     }
 
     @Transactional(readOnly = true)

@@ -35,7 +35,7 @@ public class IssueController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('CITIZEN')")
     public ResponseEntity<IssueResponse> createIssue(
-            @RequestPart("request") @Valid IssueCreateRequest request,
+            @RequestPart("data") @Valid IssueCreateRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image,
             @AuthenticationPrincipal User reporter) throws IOException {
 

@@ -13,7 +13,7 @@ public class IssueCreateRequest {
     @NotBlank(message = "Description is required")
     private String description;
 
-    @NotNull(message = "Category is required")
+    @NotBlank(message = "Category is required")
     private String category;  // Will be parsed to IssueCategory enum
 
     @Size(max = 500, message = "Location address must not exceed 500 characters")
