@@ -49,6 +49,7 @@ public class CloudinaryService {
 
     public String testConnection() {
         try {
+            log.info("Testing Cloudinary with cloud: {}", cloudinary.config.cloudName);
             Map result = cloudinary.api().ping(ObjectUtils.emptyMap());
             return result.toString();
         } catch (Exception e) {

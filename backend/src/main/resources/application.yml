@@ -39,10 +39,7 @@ app:
     expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds
 
 # ==================== Cloudinary Configuration ====================
-cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:your_cloud_name}
-  api-key: ${CLOUDINARY_API_KEY:your_api_key}
-  api-secret: ${CLOUDINARY_API_SECRET:your_api_secret}
+# Configuration is now read directly via @Value in CloudinaryConfig.java
 
 logging:
   level:
