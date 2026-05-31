@@ -46,4 +46,14 @@ public class CloudinaryService {
             throw new RuntimeException("Image upload failed: " + e.getMessage());
         }
     }
+
+    public String testConnection() {
+        try {
+            Map result = cloudinary.api().ping(ObjectUtils.emptyMap());
+            return result.toString();
+        } catch (Exception e) {
+            log.error("Cloudinary ping failed: {}", e.getMessage(), e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 }

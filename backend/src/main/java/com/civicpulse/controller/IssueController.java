@@ -4,6 +4,7 @@ import com.civicpulse.dto.request.IssueCreateRequest;
 import com.civicpulse.dto.response.IssueResponse;
 import com.civicpulse.entity.User;
 import com.civicpulse.service.IssueService;
+import com.civicpulse.service.CloudinaryService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +23,11 @@ import java.io.IOException;
 public class IssueController {
 
     private final IssueService issueService;
+    private final CloudinaryService cloudinaryService;
 
-    public IssueController(IssueService issueService) {
+    public IssueController(IssueService issueService, CloudinaryService cloudinaryService) {
         this.issueService = issueService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     /**
@@ -94,5 +97,16 @@ public class IssueController {
 
         issueService.deleteOwnIssue(id, reporter);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/test-cloudinary")
+    public ResponseEntity<String> testCloudinary() {
+        try {
+            String result = cloudinaryService.testConnection();
+            return ResponseEntity.ok("Cloudinary OK: " + result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                .body("Cloudinary FAILED: " + e.getMessage());
+        }
     }
 }
