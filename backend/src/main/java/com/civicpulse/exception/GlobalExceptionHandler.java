@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
         ex.printStackTrace(); // Log the actual error to the console for debugging
         return buildErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexpected error occurred. Please try again later."
+                "Unexpected error: " + ex.getClass().getName() + " - " + ex.getMessage()
         );
     }
 
