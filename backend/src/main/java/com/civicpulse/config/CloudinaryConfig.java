@@ -3,6 +3,9 @@ package com.civicpulse.config;
 import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
@@ -10,6 +13,8 @@ import java.util.Map;
 
 @Configuration
 public class CloudinaryConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(CloudinaryConfig.class);
 
     private final String cloudName;
     private final String apiKey;
@@ -31,5 +36,10 @@ public class CloudinaryConfig {
         config.put("api_key", apiKey);
         config.put("api_secret", apiSecret);
         return new Cloudinary(config);
+    }
+
+    @PostConstruct
+    public void validateConfig() {
+        log.info("Cloudinary configured for cloud: {}", cloudName);
     }
 }

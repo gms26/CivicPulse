@@ -27,23 +27,23 @@ public class CloudinaryService {
      * @return secure URL string
      * @throws IOException if upload fails
      */
-    public String uploadImage(MultipartFile file) throws IOException {
+    public String uploadImage(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return null;
         }
-
-        String publicId = "civicpulse/issues/" + UUID.randomUUID().toString();
         
         try {
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "public_id", publicId,
-                    "folder", "civicpulse/issues"
-            ));
-
+            Map uploadResult = cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap(
+                    "folder", "civicpulse/issues",
+                    "resource_type", "auto"
+                )
+            );
             return uploadResult.get("secure_url").toString();
         } catch (Exception e) {
             log.error("Cloudinary upload failed: {}", e.getMessage(), e);
-            return null;
+            throw new RuntimeException("Image upload failed: " + e.getMessage());
         }
     }
 }

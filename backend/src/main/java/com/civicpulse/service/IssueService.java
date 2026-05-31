@@ -37,7 +37,12 @@ public class IssueService {
         try {
             String imageUrl = null;
             if (image != null && !image.isEmpty()) {
-                imageUrl = cloudinaryService.uploadImage(image);
+                try {
+                    imageUrl = cloudinaryService.uploadImage(image);
+                } catch (Exception e) {
+                    log.warn("Image upload failed, saving without image: {}", e.getMessage());
+                    imageUrl = null;
+                }
             }
 
             Issue issue = new Issue();
