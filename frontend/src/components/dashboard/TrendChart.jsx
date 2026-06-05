@@ -19,7 +19,7 @@ export const TrendChart = ({ data }) => {
       {chartData.length === 0 ? (
         <div className="flex-grow flex items-center justify-center text-gray-400 text-sm">No data available</div>
       ) : (
-        <div className="w-full h-[300px]">
+        <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />

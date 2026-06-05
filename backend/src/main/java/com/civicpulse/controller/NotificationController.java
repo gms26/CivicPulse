@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/notifications")
+@CrossOrigin(origins = {
+    "https://civicpulse-frontend-3mb8.onrender.com",
+    "http://localhost:5173"
+})
 @PreAuthorize("isAuthenticated()")
 public class NotificationController {
 

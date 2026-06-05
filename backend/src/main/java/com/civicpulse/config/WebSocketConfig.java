@@ -37,5 +37,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureClientInboundChannel(ChannelRegistration registration) {
         // Register the auth interceptor to intercept STOMP CONNECT frames
         registration.interceptors(authInterceptor);
+        registration.taskExecutor()
+            .corePoolSize(4)
+            .maxPoolSize(8)
+            .keepAliveSeconds(60);
     }
 }
