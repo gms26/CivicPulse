@@ -35,34 +35,62 @@ public class IssueService {
     @Transactional
     public IssueResponse createIssue(IssueCreateRequest request, MultipartFile image, User reporter) throws IOException {
         try {
+            log.info("=== ISSUE CREATION START ===");
+            log.info("Reporter: id={}, email={}", reporter != null ? reporter.getId() : "NULL", reporter != null ? reporter.getEmail() : "NULL");
+            log.info("Request: title={}, category={}, locationAddress={}, lat={}, lon={}",
+                request.getTitle(), request.getCategory(), request.getLocationAddress(),
+                request.getLatitude(), request.getLongitude());
+            log.info("Image present: {}", image != null && !image.isEmpty());
+
+            // Step 1: Image upload
             String imageUrl = null;
             if (image != null && !image.isEmpty()) {
                 try {
+                    log.info("Step 1: Uploading image, size={} bytes", image.getSize());
                     imageUrl = cloudinaryService.uploadImage(image);
+                    log.info("Step 1: Image uploaded OK: {}", imageUrl);
                 } catch (Exception e) {
-                    log.warn("Image upload failed, saving without image: {}", e.getMessage());
+                    log.warn("Step 1: Image upload failed, saving without image: {}", e.getMessage());
                     imageUrl = null;
                 }
+            } else {
+                log.info("Step 1: No image to upload, skipping");
             }
 
+            // Step 2: Build Issue entity
+            log.info("Step 2: Building Issue entity...");
             Issue issue = new Issue();
             issue.setTitle(request.getTitle());
             issue.setDescription(request.getDescription());
+            
+            log.info("Step 2a: Parsing category: '{}'", request.getCategory());
             issue.setCategory(IssueCategory.valueOf(request.getCategory().toUpperCase()));
+            
             issue.setLocationAddress(request.getLocationAddress());
             issue.setLatitude(request.getLatitude());
             issue.setLongitude(request.getLongitude());
             issue.setImageUrl(imageUrl);
             issue.setReporter(reporter);
-            
-            // Defaults for a new issue
             issue.setStatus(IssueStatus.OPEN);
             issue.setPriority(Priority.LOW);
+            log.info("Step 2: Issue entity built OK");
 
+            // Step 3: Save to DB
+            log.info("Step 3: Saving issue to database...");
             Issue savedIssue = issueRepository.save(issue);
-            return mapToResponse(savedIssue);
+            log.info("Step 3: Issue saved with id={}", savedIssue.getId());
+
+            // Step 4: Map to response
+            log.info("Step 4: Mapping to response...");
+            IssueResponse response = mapToResponse(savedIssue);
+            log.info("=== ISSUE CREATION SUCCESS, id={} ===", savedIssue.getId());
+            return response;
+
         } catch (Exception e) {
-            log.error("Issue creation failed: {}", e.getMessage(), e);
+            log.error("=== ISSUE CREATION FAILED ===");
+            log.error("Exception type: {}", e.getClass().getName());
+            log.error("Exception message: {}", e.getMessage());
+            log.error("Full stack trace:", e);
             throw e;
         }
     }
