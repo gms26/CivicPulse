@@ -37,7 +37,7 @@ export const ResolutionRateChart = ({ data }) => {
                 ))}
               </Pie>
               <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-              <Legend verticalAlign="bottom" height={36} iconType="circle" />
+              <Legend layout="vertical" verticalAlign="middle" align="right" iconType="circle" />
             </PieChart>
           </ResponsiveContainer>
         </div>

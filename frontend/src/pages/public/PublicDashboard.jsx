@@ -74,7 +74,7 @@ export const PublicDashboard = () => {
   const { summary, byCategory, byStatus } = data;
 
   return (
-    <div className="bg-gray-50 flex flex-col min-h-screen">
+    <div className="bg-gray-50 flex flex-col">
 
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-200 pt-16 pb-20 px-4 sm:px-6 lg:px-8 text-center shadow-sm">
@@ -180,7 +180,7 @@ export const PublicDashboard = () => {
                     ))}
                   </Pie>
                   <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                  <Legend layout="vertical" verticalAlign="middle" align="right" iconType="circle" />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -189,13 +189,6 @@ export const PublicDashboard = () => {
         </div>
       </div>
 
-      <footer className="bg-white border-t border-gray-200 mt-auto">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-500">
-            CivicPulse &copy; 2025 | Built for Community
-          </p>
-        </div>
-      </footer>
     </div>
   );
 };
