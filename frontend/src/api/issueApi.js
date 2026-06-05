@@ -1,7 +1,9 @@
 import axiosInstance from './axiosConfig';
 
 export const createIssue = async (formData) => {
-  const response = await axiosInstance.post('/issues', formData);
+  const response = await axiosInstance.post('/issues', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
   return response.data;
 };
 
