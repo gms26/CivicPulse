@@ -18,7 +18,7 @@ spring:
   # ==================== JPA / Hibernate ====================
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         jdbc:
@@ -32,7 +32,7 @@ spring:
   # ==================== SQL Init (data.sql seed) ====================
   sql:
     init:
-      mode: never
+      mode: always
 
   # ==================== Multipart File Upload ====================
   servlet:
