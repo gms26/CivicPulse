@@ -32,6 +32,19 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  # ==================== Mail Configuration (Gmail SMTP) ====================
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_APP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 # ==================== JWT Configuration ====================
 app:
   jwt:
@@ -44,3 +57,8 @@ app:
 logging:
   level:
     root: INFO
+
+# ==================== Application URLs ====================
+civicpulse:
+  frontend:
+    url: ${FRONTEND_URL:https://civicpulse-frontend-3mb8.onrender.com}

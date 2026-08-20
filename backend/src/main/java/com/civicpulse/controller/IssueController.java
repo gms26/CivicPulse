@@ -2,6 +2,7 @@ package com.civicpulse.controller;
 
 import com.civicpulse.dto.request.IssueCreateRequest;
 import com.civicpulse.dto.response.IssueResponse;
+import com.civicpulse.dto.response.IssueUpdateResponse;
 import com.civicpulse.entity.User;
 import com.civicpulse.service.IssueService;
 import com.civicpulse.service.CloudinaryService;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/issues")
@@ -97,6 +99,17 @@ public class IssueController {
 
         issueService.deleteOwnIssue(id, reporter);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Get the timeline (audit trail) of an issue.
+     * Accessible by any authenticated user.
+     */
+    @GetMapping("/{id}/timeline")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<IssueUpdateResponse>> getIssueTimeline(@PathVariable Long id) {
+        List<IssueUpdateResponse> timeline = issueService.getIssueTimeline(id);
+        return ResponseEntity.ok(timeline);
     }
 
     @GetMapping("/test-cloudinary")

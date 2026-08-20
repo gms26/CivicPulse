@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAdminIssues } from '../../api/adminApi';
-import { Loader } from '../../components/common';
+import { Loader, Pagination } from '../../components/common';
 import { IssueCard, IssueFilters, IssueDetailModal } from '../../components/issues';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import toast from 'react-hot-toast';
@@ -21,13 +21,15 @@ export const AdminDashboard = () => {
   
   const [selectedIssue, setSelectedIssue] = useState(null);
 
+  const PAGE_SIZE = 10;
+
   const fetchIssues = async () => {
     setLoading(true);
     try {
       // The backend accepts category, status, priority, and search keyword
       const params = {
         page,
-        size: 20,
+        size: PAGE_SIZE,
         ...(categoryFilter && { category: categoryFilter }),
         ...(statusFilter && { status: statusFilter }),
         ...(priorityFilter && { priority: priorityFilter }),
@@ -95,25 +97,15 @@ export const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Pagination Controls */}
-      {!loading && totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-8">
-          <button 
-            disabled={page === 0} 
-            onClick={() => setPage(p => p - 1)}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-600">Page {page + 1} of {totalPages}</span>
-          <button 
-            disabled={page === totalPages - 1} 
-            onClick={() => setPage(p => p + 1)}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+      {/* Pagination */}
+      {!loading && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalElements={totalElements}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPage}
+        />
       )}
 
       <IssueDetailModal 

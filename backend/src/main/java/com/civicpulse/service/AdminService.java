@@ -28,12 +28,14 @@ public class AdminService {
     private final IssueUpdateRepository issueUpdateRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
-    public AdminService(IssueRepository issueRepository, IssueUpdateRepository issueUpdateRepository, UserRepository userRepository, NotificationService notificationService) {
+    public AdminService(IssueRepository issueRepository, IssueUpdateRepository issueUpdateRepository, UserRepository userRepository, NotificationService notificationService, EmailService emailService) {
         this.issueRepository = issueRepository;
         this.issueUpdateRepository = issueUpdateRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -81,6 +83,24 @@ public class AdminService {
                 newStatus.getDisplayName(), 
                 request.getComment()
         );
+
+        // Email Notification
+        try {
+            if (updatedIssue.getReporter() != null && updatedIssue.getReporter().getEmail() != null) {
+                emailService.sendStatusUpdateEmail(
+                        updatedIssue.getReporter().getEmail(),
+                        updatedIssue.getReporter().getFullName(),
+                        updatedIssue.getTitle(),
+                        oldStatus.getDisplayName(),
+                        newStatus.getDisplayName(),
+                        request.getComment()
+                );
+            }
+        } catch (Exception e) {
+            // Email failure must never break the status update
+            org.slf4j.LoggerFactory.getLogger(AdminService.class)
+                    .warn("Failed to send email notification: {}", e.getMessage());
+        }
 
         return mapToResponse(updatedIssue);
     }

@@ -2,7 +2,9 @@ package com.civicpulse.service;
 
 import com.civicpulse.dto.request.IssueCreateRequest;
 import com.civicpulse.dto.response.IssueResponse;
+import com.civicpulse.dto.response.IssueUpdateResponse;
 import com.civicpulse.entity.Issue;
+import com.civicpulse.entity.IssueUpdate;
 import com.civicpulse.entity.User;
 import com.civicpulse.entity.enums.IssueCategory;
 import com.civicpulse.entity.enums.IssueStatus;
@@ -10,6 +12,7 @@ import com.civicpulse.entity.enums.Priority;
 import com.civicpulse.exception.ResourceNotFoundException;
 import com.civicpulse.exception.UnauthorizedException;
 import com.civicpulse.repository.IssueRepository;
+import com.civicpulse.repository.IssueUpdateRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -19,16 +22,20 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class IssueService {
 
     private static final Logger log = LoggerFactory.getLogger(IssueService.class);
     private final IssueRepository issueRepository;
+    private final IssueUpdateRepository issueUpdateRepository;
     private final CloudinaryService cloudinaryService;
 
-    public IssueService(IssueRepository issueRepository, CloudinaryService cloudinaryService) {
+    public IssueService(IssueRepository issueRepository, IssueUpdateRepository issueUpdateRepository, CloudinaryService cloudinaryService) {
         this.issueRepository = issueRepository;
+        this.issueUpdateRepository = issueUpdateRepository;
         this.cloudinaryService = cloudinaryService;
     }
 
@@ -138,6 +145,41 @@ public class IssueService {
         }
 
         issueRepository.delete(issue);
+    }
+
+    @Transactional(readOnly = true)
+    public List<IssueUpdateResponse> getIssueTimeline(Long issueId) {
+        Issue issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new ResourceNotFoundException("Issue not found with id: " + issueId));
+
+        List<IssueUpdateResponse> timeline = new ArrayList<>();
+
+        // First entry: Issue creation event
+        IssueUpdateResponse creationEvent = new IssueUpdateResponse();
+        creationEvent.setId(0L);
+        creationEvent.setIssueId(issue.getId());
+        creationEvent.setUpdatedByName(issue.getReporter() != null ? issue.getReporter().getFullName() : "Unknown");
+        creationEvent.setOldStatus(null);
+        creationEvent.setNewStatus("OPEN");
+        creationEvent.setComment("Issue reported");
+        creationEvent.setCreatedAt(issue.getCreatedAt());
+        timeline.add(creationEvent);
+
+        // Subsequent entries: All status changes in chronological order
+        List<IssueUpdate> updates = issueUpdateRepository.findByIssueIdOrderByCreatedAtAsc(issueId);
+        for (IssueUpdate update : updates) {
+            IssueUpdateResponse response = new IssueUpdateResponse();
+            response.setId(update.getId());
+            response.setIssueId(issue.getId());
+            response.setUpdatedByName(update.getUpdatedBy() != null ? update.getUpdatedBy().getFullName() : "System");
+            response.setOldStatus(update.getOldStatus() != null ? update.getOldStatus().name() : null);
+            response.setNewStatus(update.getNewStatus() != null ? update.getNewStatus().name() : null);
+            response.setComment(update.getComment());
+            response.setCreatedAt(update.getCreatedAt());
+            timeline.add(response);
+        }
+
+        return timeline;
     }
 
     private IssueResponse mapToResponse(Issue issue) {

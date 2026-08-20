@@ -57,6 +57,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/analytics/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
 
+                // Timeline endpoint requires authentication
+                .requestMatchers(HttpMethod.GET, "/api/issues/*/timeline").authenticated()
+
                 // Allow GET for browsing issues publicly
                 .requestMatchers(HttpMethod.GET, "/api/issues/**").permitAll()
 

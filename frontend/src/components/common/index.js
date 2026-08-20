@@ -3,3 +3,4 @@ export { Card } from './Card';
 export { Loader } from './Loader';
 export { StatusBadge } from './StatusBadge';
 export { Modal } from './Modal';
+export { Pagination } from './Pagination';

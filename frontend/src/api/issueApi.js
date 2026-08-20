@@ -22,6 +22,11 @@ export const getIssueById = async (id) => {
   return response.data;
 };
 
+export const getIssueTimeline = async (id) => {
+  const response = await axiosInstance.get(`/issues/${id}/timeline`);
+  return response.data;
+};
+
 export const deleteIssue = async (id) => {
   await axiosInstance.delete(`/issues/${id}`);
 };
