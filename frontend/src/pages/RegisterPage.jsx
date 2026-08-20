@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register as registerApi } from '../api/authApi';
+import { useAuth } from '../hooks/useAuth';
 import { Button, Card } from '../components/common';
 import toast from 'react-hot-toast';
 import { User, Mail, Lock, Phone } from 'lucide-react';
@@ -14,6 +15,7 @@ export const RegisterPage = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,9 +25,11 @@ export const RegisterPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await registerApi(formData);
-      toast.success('Registration successful! Please log in.');
-      navigate('/login');
+      const data = await registerApi(formData);
+      // Auto-login after successful registration
+      login({ email: data.email, fullName: data.fullName, role: data.role }, data.token);
+      toast.success('Registration successful! Welcome to CivicPulse.');
+      navigate('/citizen');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed. Try again.');
     } finally {
