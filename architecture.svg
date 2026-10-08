@@ -1,15 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="100%" height="100%">
   <defs>
     <style>
       .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8; }
+      .group-box { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 6; rx: 12; }
       .text-title { font-family: system-ui, sans-serif; font-weight: bold; font-size: 16px; fill: #0f172a; }
       .text-sub { font-family: system-ui, sans-serif; font-size: 12px; fill: #475569; }
+      .text-group { font-family: system-ui, sans-serif; font-weight: bold; font-size: 14px; fill: #64748b; }
       .line { stroke: #cbd5e1; stroke-width: 2; fill: none; }
       .line-anim { stroke: #3b82f6; stroke-width: 3; fill: none; stroke-dasharray: 8; animation: flow 1s linear infinite; }
       @keyframes flow { from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; } }
       .arrow { fill: #3b82f6; }
       .bg { fill: #f8fafc; rx: 12px; }
       
+      .box-actor { fill: #f1f5f9; stroke: #64748b; }
       .box-frontend { fill: #eff6ff; stroke: #3b82f6; }
       .box-backend { fill: #f0fdf4; stroke: #22c55e; }
       .box-db { fill: #fef2f2; stroke: #ef4444; }
@@ -23,71 +26,101 @@
 
   <rect width="100%" height="100%" class="bg" />
 
+  <!-- Render Cloud Group -->
+  <rect x="300" y="50" width="400" height="420" class="group-box" />
+  <text x="320" y="75" class="text-group">☁️ Hosted on Render</text>
+
+  <!-- Actors -->
+  <!-- Citizen -->
+  <g transform="translate(50, 120)">
+    <rect width="180" height="80" class="box box-actor" />
+    <text x="90" y="35" text-anchor="middle" class="text-title">👤 Citizen</text>
+    <text x="90" y="60" text-anchor="middle" class="text-sub">Reports Issues</text>
+  </g>
+
+  <!-- Admin -->
+  <g transform="translate(50, 260)">
+    <rect width="180" height="80" class="box box-actor" />
+    <text x="90" y="35" text-anchor="middle" class="text-title">🛡️ Admin</text>
+    <text x="90" y="60" text-anchor="middle" class="text-sub">Manages Resolutions</text>
+  </g>
+
   <!-- Frontend -->
-  <g transform="translate(250, 50)">
+  <g transform="translate(350, 100)">
     <rect width="300" height="100" class="box box-frontend" />
     <text x="150" y="35" text-anchor="middle" class="text-title">Frontend (React)</text>
     <text x="150" y="60" text-anchor="middle" class="text-sub">React 18, Vite 5, Tailwind CSS</text>
-    <text x="150" y="80" text-anchor="middle" class="text-sub">Deployed on Render (Static Site)</text>
+    <text x="150" y="80" text-anchor="middle" class="text-sub">Deployed as Static Site</text>
   </g>
 
   <!-- Backend -->
-  <g transform="translate(250, 250)">
+  <g transform="translate(350, 320)">
     <rect width="300" height="120" class="box box-backend" />
     <text x="150" y="35" text-anchor="middle" class="text-title">Backend (Spring Boot)</text>
     <text x="150" y="60" text-anchor="middle" class="text-sub">Java 25, Spring Security, JWT</text>
     <text x="150" y="80" text-anchor="middle" class="text-sub">WebSockets, Spring Mail</text>
-    <text x="150" y="100" text-anchor="middle" class="text-sub">Deployed on Render (Docker Container)</text>
+    <text x="150" y="100" text-anchor="middle" class="text-sub">Deployed as Docker Container</text>
   </g>
 
+  <!-- Infrastructure Services -->
   <!-- Database -->
-  <g transform="translate(50, 450)">
+  <g transform="translate(100, 550)">
     <rect width="200" height="100" class="box box-db" />
-    <text x="100" y="40" text-anchor="middle" class="text-title">PostgreSQL</text>
+    <text x="100" y="40" text-anchor="middle" class="text-title">🗄️ PostgreSQL</text>
     <text x="100" y="65" text-anchor="middle" class="text-sub">Supabase</text>
     <text x="100" y="85" text-anchor="middle" class="text-sub">Relational Data</text>
   </g>
 
   <!-- Gmail SMTP -->
-  <g transform="translate(300, 450)">
+  <g transform="translate(400, 550)">
     <rect width="200" height="100" class="box box-smtp" />
-    <text x="100" y="40" text-anchor="middle" class="text-title">Gmail SMTP</text>
+    <text x="100" y="40" text-anchor="middle" class="text-title">📧 Gmail SMTP</text>
     <text x="100" y="65" text-anchor="middle" class="text-sub">Email Notifications</text>
   </g>
 
   <!-- Cloudinary -->
-  <g transform="translate(550, 450)">
+  <g transform="translate(700, 550)">
     <rect width="200" height="100" class="box box-cloud" />
-    <text x="100" y="40" text-anchor="middle" class="text-title">Cloudinary CDN</text>
+    <text x="100" y="40" text-anchor="middle" class="text-title">🖼️ Cloudinary CDN</text>
     <text x="100" y="65" text-anchor="middle" class="text-sub">Image Storage</text>
   </g>
 
-  <!-- Connections -->
+  <!-- Connections (Lines & Animations) -->
   
+  <!-- Citizen to Frontend -->
+  <path d="M 230 160 L 350 160" class="line" />
+  <path d="M 230 160 L 350 160" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="290" y="150" text-anchor="middle" class="text-sub">HTTPS</text>
+
+  <!-- Admin to Frontend -->
+  <path d="M 230 300 L 290 300 L 290 180 L 350 180" class="line" />
+  <path d="M 230 300 L 290 300 L 290 180 L 350 180" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="290" y="290" text-anchor="middle" class="text-sub">HTTPS</text>
+
   <!-- Frontend to Backend -->
   <!-- Request / REST -->
-  <path d="M 330 150 L 330 250" class="line" />
-  <path d="M 330 150 L 330 250" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="310" y="205" text-anchor="end" class="text-sub">REST API (Axios)</text>
+  <path d="M 430 200 L 430 320" class="line" />
+  <path d="M 430 200 L 430 320" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="410" y="265" text-anchor="end" class="text-sub">REST API (Axios)</text>
 
   <!-- WebSocket -->
-  <path d="M 470 150 L 470 250" class="line" />
-  <path d="M 470 150 L 470 250" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="490" y="205" text-anchor="start" class="text-sub">WebSocket (STOMP/SockJS)</text>
+  <path d="M 570 200 L 570 320" class="line" />
+  <path d="M 570 200 L 570 320" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="590" y="265" text-anchor="start" class="text-sub">WebSocket (STOMP/SockJS)</text>
 
   <!-- Backend to DB -->
-  <path d="M 310 370 L 150 450" class="line" />
-  <path d="M 310 370 L 150 450" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="200" y="390" text-anchor="end" class="text-sub">JPA / Hibernate</text>
+  <path d="M 410 440 L 200 550" class="line" />
+  <path d="M 410 440 L 200 550" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="280" y="490" text-anchor="end" class="text-sub">JPA / Hibernate</text>
 
   <!-- Backend to SMTP -->
-  <path d="M 400 370 L 400 450" class="line" />
-  <path d="M 400 370 L 400 450" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="415" y="415" text-anchor="start" class="text-sub">SMTP</text>
+  <path d="M 500 440 L 500 550" class="line" />
+  <path d="M 500 440 L 500 550" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="515" y="500" text-anchor="start" class="text-sub">SMTP</text>
 
   <!-- Backend to Cloudinary -->
-  <path d="M 490 370 L 650 450" class="line" />
-  <path d="M 490 370 L 650 450" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="600" y="390" text-anchor="start" class="text-sub">HTTP SDK</text>
+  <path d="M 590 440 L 800 550" class="line" />
+  <path d="M 590 440 L 800 550" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="710" y="490" text-anchor="start" class="text-sub">HTTP SDK</text>
 
 </svg>
