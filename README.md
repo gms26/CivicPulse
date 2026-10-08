@@ -226,10 +226,13 @@ CivicPulse/
 **1. Citizen Reports Issue (Responsive Website):** Citizens can use the platform on their mobile phones or desktops to upload images and submit reports.
 **2. REST API Request:** The frontend sends a POST request with the form data to the Spring Boot Backend.
 **3. Data Storage:** The Backend immediately stores the image evidence on Cloudinary and saves all textual and location data to the PostgreSQL database.
-**4. Admin Updates Status:** An Admin logs in, reviews the issue, and updates its status (e.g., to "In Progress").
-**5. Real-Time Notifications Triggered:**
-  - **WebSockets (STOMP):** The Backend pushes an instant, real-time alert back to the Citizen's frontend, updating the notification bell in the navbar without a page reload.
-  - **Email (SMTP):** Simultaneously, the backend triggers an HTML-formatted email via Gmail SMTP detailing the status change to the Citizen's inbox.
+**4. Admin Updates Status:** Local Authorities (Admins) log in to the Admin Management Console, monitor incoming issues using priority/category filters, and update an issue's status (e.g., to "In Progress").
+**5. Real-Time Notifications (Target: The Reporting Citizen):** When an Admin updates a ticket, the system automatically notifies the **exact Citizen who originally reported it**:
+  - **WebSockets (STOMP):** The Backend pushes an instant, real-time alert to the Citizen's frontend, incrementing their notification bell in the navbar without a page reload.
+  - **Email (SMTP):** Simultaneously, the backend triggers a branded HTML email via Gmail SMTP detailing the status change straight to the Citizen's inbox.
+**6. Continuous Monitoring:**
+  - **For Citizens:** They can track the exact audit timeline (who changed what and when) via their personal dashboard.
+  - **For Public & Admins:** Resolution trends, status metrics, and category breakdowns can be monitored live via the interactive Analytics Dashboard.
 
 ---
 
