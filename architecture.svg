@@ -1,15 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="100%" height="100%">
   <defs>
     <style>
       .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8; }
       .group-box { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 6; rx: 12; }
       .text-title { font-family: system-ui, sans-serif; font-weight: bold; font-size: 16px; fill: #0f172a; }
       .text-sub { font-family: system-ui, sans-serif; font-size: 12px; fill: #475569; }
+      .text-flow { font-family: system-ui, sans-serif; font-weight: bold; font-size: 12px; fill: #1d4ed8; }
       .text-group { font-family: system-ui, sans-serif; font-weight: bold; font-size: 14px; fill: #64748b; }
+      
       .line { stroke: #cbd5e1; stroke-width: 2; fill: none; }
       .line-anim { stroke: #3b82f6; stroke-width: 3; fill: none; stroke-dasharray: 8; animation: flow 1s linear infinite; }
+      .line-anim-reverse { stroke: #10b981; stroke-width: 3; fill: none; stroke-dasharray: 8; animation: flow-rev 1s linear infinite; }
+      
       @keyframes flow { from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; } }
+      @keyframes flow-rev { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 16; } }
+      
       .arrow { fill: #3b82f6; }
+      .arrow-notify { fill: #10b981; }
       .bg { fill: #f8fafc; rx: 12px; }
       
       .box-actor { fill: #f1f5f9; stroke: #64748b; }
@@ -18,109 +25,129 @@
       .box-db { fill: #fef2f2; stroke: #ef4444; }
       .box-smtp { fill: #fffbeb; stroke: #f59e0b; }
       .box-cloud { fill: #f5f3ff; stroke: #8b5cf6; }
+
+      .badge { fill: #1d4ed8; rx: 10; }
+      .badge-text { font-family: system-ui, sans-serif; font-weight: bold; font-size: 12px; fill: #ffffff; }
     </style>
+    
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" class="arrow" />
+    </marker>
+    <marker id="arrowhead-notify" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" class="arrow-notify" />
     </marker>
   </defs>
 
   <rect width="100%" height="100%" class="bg" />
 
   <!-- Render Cloud Group -->
-  <rect x="300" y="50" width="400" height="420" class="group-box" />
+  <rect x="300" y="50" width="450" height="500" class="group-box" />
   <text x="320" y="75" class="text-group">☁️ Hosted on Render</text>
 
   <!-- Actors -->
   <!-- Citizen -->
-  <g transform="translate(50, 120)">
-    <rect width="180" height="80" class="box box-actor" />
+  <g transform="translate(50, 150)">
+    <rect width="180" height="90" class="box box-actor" />
     <text x="90" y="35" text-anchor="middle" class="text-title">👤 Citizen</text>
     <text x="90" y="60" text-anchor="middle" class="text-sub">Reports Issues</text>
+    <text x="90" y="75" text-anchor="middle" class="text-sub">Receives Notifications</text>
   </g>
 
   <!-- Admin -->
-  <g transform="translate(50, 260)">
-    <rect width="180" height="80" class="box box-actor" />
+  <g transform="translate(50, 350)">
+    <rect width="180" height="90" class="box box-actor" />
     <text x="90" y="35" text-anchor="middle" class="text-title">🛡️ Admin</text>
-    <text x="90" y="60" text-anchor="middle" class="text-sub">Manages Resolutions</text>
+    <text x="90" y="60" text-anchor="middle" class="text-sub">Updates Status</text>
+    <text x="90" y="75" text-anchor="middle" class="text-sub">Manages Resolutions</text>
   </g>
 
   <!-- Frontend -->
-  <g transform="translate(350, 100)">
-    <rect width="300" height="100" class="box box-frontend" />
-    <text x="150" y="35" text-anchor="middle" class="text-title">Frontend (React)</text>
-    <text x="150" y="60" text-anchor="middle" class="text-sub">React 18, Vite 5, Tailwind CSS</text>
-    <text x="150" y="80" text-anchor="middle" class="text-sub">Deployed as Static Site</text>
+  <g transform="translate(350, 120)">
+    <rect width="350" height="130" class="box box-frontend" />
+    <text x="175" y="35" text-anchor="middle" class="text-title">📱💻 Responsive Frontend (React)</text>
+    <text x="175" y="60" text-anchor="middle" class="text-sub">Desktop &amp; Mobile Interfaces</text>
+    <text x="175" y="80" text-anchor="middle" class="text-sub">React 18, Vite 5, Tailwind CSS</text>
+    <text x="175" y="100" text-anchor="middle" class="text-sub">Real-Time UI Updates</text>
   </g>
 
   <!-- Backend -->
-  <g transform="translate(350, 320)">
-    <rect width="300" height="120" class="box box-backend" />
-    <text x="150" y="35" text-anchor="middle" class="text-title">Backend (Spring Boot)</text>
-    <text x="150" y="60" text-anchor="middle" class="text-sub">Java 25, Spring Security, JWT</text>
-    <text x="150" y="80" text-anchor="middle" class="text-sub">WebSockets, Spring Mail</text>
-    <text x="150" y="100" text-anchor="middle" class="text-sub">Deployed as Docker Container</text>
+  <g transform="translate(350, 400)">
+    <rect width="350" height="120" class="box box-backend" />
+    <text x="175" y="35" text-anchor="middle" class="text-title">⚙️ Backend (Spring Boot)</text>
+    <text x="175" y="60" text-anchor="middle" class="text-sub">Java 25, Spring Security, JWT</text>
+    <text x="175" y="80" text-anchor="middle" class="text-sub">REST Controllers, WebSocket STOMP</text>
+    <text x="175" y="100" text-anchor="middle" class="text-sub">Deployed as Docker Container</text>
   </g>
 
   <!-- Infrastructure Services -->
   <!-- Database -->
-  <g transform="translate(100, 550)">
-    <rect width="200" height="100" class="box box-db" />
-    <text x="100" y="40" text-anchor="middle" class="text-title">🗄️ PostgreSQL</text>
-    <text x="100" y="65" text-anchor="middle" class="text-sub">Supabase</text>
-    <text x="100" y="85" text-anchor="middle" class="text-sub">Relational Data</text>
+  <g transform="translate(100, 650)">
+    <rect width="220" height="100" class="box box-db" />
+    <text x="110" y="40" text-anchor="middle" class="text-title">🗄️ PostgreSQL</text>
+    <text x="110" y="65" text-anchor="middle" class="text-sub">Supabase (Relational Data)</text>
+    <text x="110" y="85" text-anchor="middle" class="text-sub">Issues &amp; Users Table</text>
   </g>
 
   <!-- Gmail SMTP -->
-  <g transform="translate(400, 550)">
+  <g transform="translate(420, 650)">
     <rect width="200" height="100" class="box box-smtp" />
     <text x="100" y="40" text-anchor="middle" class="text-title">📧 Gmail SMTP</text>
     <text x="100" y="65" text-anchor="middle" class="text-sub">Email Notifications</text>
   </g>
 
   <!-- Cloudinary -->
-  <g transform="translate(700, 550)">
-    <rect width="200" height="100" class="box box-cloud" />
-    <text x="100" y="40" text-anchor="middle" class="text-title">🖼️ Cloudinary CDN</text>
-    <text x="100" y="65" text-anchor="middle" class="text-sub">Image Storage</text>
+  <g transform="translate(720, 650)">
+    <rect width="220" height="100" class="box box-cloud" />
+    <text x="110" y="40" text-anchor="middle" class="text-title">🖼️ Cloudinary CDN</text>
+    <text x="110" y="65" text-anchor="middle" class="text-sub">Image Evidence Storage</text>
   </g>
 
-  <!-- Connections (Lines & Animations) -->
+  <!-- Flow Connections -->
   
-  <!-- Citizen to Frontend -->
-  <path d="M 230 160 L 350 160" class="line" />
-  <path d="M 230 160 L 350 160" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="290" y="150" text-anchor="middle" class="text-sub">HTTPS</text>
+  <!-- Step 1: Citizen to Frontend -->
+  <path d="M 230 170 L 350 170" class="line" />
+  <path d="M 230 170 L 350 170" class="line-anim" marker-end="url(#arrowhead)" />
+  <rect x="250" y="145" width="20" height="20" class="badge" />
+  <text x="260" y="159" text-anchor="middle" class="badge-text">1</text>
+  <text x="290" y="195" text-anchor="middle" class="text-flow">Report</text>
 
-  <!-- Admin to Frontend -->
-  <path d="M 230 300 L 290 300 L 290 180 L 350 180" class="line" />
-  <path d="M 230 300 L 290 300 L 290 180 L 350 180" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="290" y="290" text-anchor="middle" class="text-sub">HTTPS</text>
+  <!-- Step 4: Admin to Frontend -->
+  <path d="M 230 395 L 300 395 L 300 210 L 350 210" class="line" />
+  <path d="M 230 395 L 300 395 L 300 210 L 350 210" class="line-anim" marker-end="url(#arrowhead)" />
+  <rect x="260" y="375" width="20" height="20" class="badge" />
+  <text x="270" y="389" text-anchor="middle" class="badge-text">4</text>
+  <text x="290" y="370" text-anchor="middle" class="text-flow">Update Status</text>
 
-  <!-- Frontend to Backend -->
-  <!-- Request / REST -->
-  <path d="M 430 200 L 430 320" class="line" />
-  <path d="M 430 200 L 430 320" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="410" y="265" text-anchor="end" class="text-sub">REST API (Axios)</text>
+  <!-- Step 2: Frontend to Backend (REST) -->
+  <path d="M 450 250 L 450 400" class="line" />
+  <path d="M 450 250 L 450 400" class="line-anim" marker-end="url(#arrowhead)" />
+  <rect x="420" y="315" width="20" height="20" class="badge" />
+  <text x="430" y="329" text-anchor="middle" class="badge-text">2</text>
+  <text x="410" y="340" text-anchor="end" class="text-flow">REST API</text>
 
-  <!-- WebSocket -->
-  <path d="M 570 200 L 570 320" class="line" />
-  <path d="M 570 200 L 570 320" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="590" y="265" text-anchor="start" class="text-sub">WebSocket (STOMP/SockJS)</text>
+  <!-- Step 3a: Backend to DB -->
+  <path d="M 450 520 L 250 650" class="line" />
+  <path d="M 450 520 L 250 650" class="line-anim" marker-end="url(#arrowhead)" />
+  <rect x="340" y="555" width="20" height="20" class="badge" />
+  <text x="350" y="569" text-anchor="middle" class="badge-text">3</text>
+  <text x="320" y="595" text-anchor="end" class="text-flow">Save Data</text>
 
-  <!-- Backend to DB -->
-  <path d="M 410 440 L 200 550" class="line" />
-  <path d="M 410 440 L 200 550" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="280" y="490" text-anchor="end" class="text-sub">JPA / Hibernate</text>
+  <!-- Step 3b: Backend to Cloudinary -->
+  <path d="M 600 520 L 800 650" class="line" />
+  <path d="M 600 520 L 800 650" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="730" y="595" text-anchor="start" class="text-flow">Upload Image</text>
 
-  <!-- Backend to SMTP -->
-  <path d="M 500 440 L 500 550" class="line" />
-  <path d="M 500 440 L 500 550" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="515" y="500" text-anchor="start" class="text-sub">SMTP</text>
+  <!-- Step 5a: Backend to Frontend (WebSocket Notification) -->
+  <path d="M 600 400 L 600 250" class="line" />
+  <path d="M 600 400 L 600 250" class="line-anim-reverse" marker-start="url(#arrowhead-notify)" />
+  <rect x="615" y="315" width="20" height="20" class="badge" />
+  <text x="625" y="329" text-anchor="middle" class="badge-text">5</text>
+  <text x="645" y="325" text-anchor="start" class="text-flow">WebSocket Push</text>
+  <text x="645" y="345" text-anchor="start" class="text-sub">(Real-Time Bell)</text>
 
-  <!-- Backend to Cloudinary -->
-  <path d="M 590 440 L 800 550" class="line" />
-  <path d="M 590 440 L 800 550" class="line-anim" marker-end="url(#arrowhead)" />
-  <text x="710" y="490" text-anchor="start" class="text-sub">HTTP SDK</text>
+  <!-- Step 5b: Backend to SMTP -->
+  <path d="M 520 520 L 520 650" class="line" />
+  <path d="M 520 520 L 520 650" class="line-anim" marker-end="url(#arrowhead)" />
+  <text x="535" y="585" text-anchor="start" class="text-flow">Trigger Email</text>
 
 </svg>
