@@ -218,27 +218,9 @@ CivicPulse/
 
 ## 🏗 Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      FRONTEND (React)                       │
-│  React 18 + Vite 5 + Tailwind CSS v3 + Recharts            │
-│  Deployed as Static Site on Render                          │
-├─────────────────────────────────────────────────────────────┤
-│           │ REST API (Axios)    │ WebSocket (STOMP/SockJS)  │
-│           ▼                    ▼                            │
-├─────────────────────────────────────────────────────────────┤
-│                      BACKEND (Spring Boot)                  │
-│  Java 25 + Spring Security + JWT + Spring WebSocket         │
-│  Spring Mail (Gmail SMTP) + Cloudinary SDK                  │
-│  Deployed as Docker container on Render                     │
-├─────────────────────────────────────────────────────────────┤
-│           │ JPA/Hibernate      │ SMTP          │ HTTP       │
-│           ▼                    ▼               ▼            │
-├──────────────────┬──────────────────┬───────────────────────┤
-│   PostgreSQL     │   Gmail SMTP     │     Cloudinary CDN    │
-│   (Supabase)     │   (Email)        │     (Images)          │
-└──────────────────┴──────────────────┴───────────────────────┘
-```
+<div align="center">
+  <img src="./architecture.svg" alt="Animated Architecture Diagram" width="800" />
+</div>
 
 ---
 
