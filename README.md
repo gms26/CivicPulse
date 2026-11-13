@@ -4,9 +4,9 @@
 
 ### Community Issue Reporting & Resolution Platform
 
-[![Java](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Deployed on Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com/)
@@ -56,7 +56,10 @@ The platform includes public analytics dashboards, paginated data views, issue a
 | Role | Email | Password |
 |------|-------|----------|
 | Citizen | Register a new account | — |
-| Admin | *(Pre-seeded via data.sql)* | — |
+| Admin | Set via `ADMIN_EMAIL` / `ADMIN_PASSWORD` env vars (see below) | — |
+
+There are no default credentials. The admin account is created at startup
+from those two environment variables; when they are unset, no admin exists.
 
 ---
 
@@ -65,7 +68,7 @@ The platform includes public analytics dashboards, paginated data views, issue a
 ### Backend
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **Java** | 25 | Core language (no Lombok — standard Java boilerplate) |
+| **Java** | 17 | Core language (Docker image builds with JDK 21) |
 | **Spring Boot** | 3.3.5 | REST API framework, dependency injection, auto-config |
 | **Spring Security** | 6.x | Authentication & authorization (JWT + role-based) |
 | **Spring Data JPA** | 3.x | ORM / database access layer |
@@ -74,16 +77,17 @@ The platform includes public analytics dashboards, paginated data views, issue a
 | **PostgreSQL** | 15+ | Relational database (hosted on Supabase) |
 | **Cloudinary** | SDK 1.34 | Image upload & CDN hosting |
 | **JJWT** | 0.12.6 | JWT token creation & validation |
+| **Lombok** | 1.18.36 | Used sparingly (constructors, logging); most DTOs/entities use hand-written builders |
 | **Maven** | Wrapper | Build & dependency management |
 | **Docker** | Dockerfile | Containerized production deployment |
 
 ### Frontend
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **React** | 18 | UI library (functional components + hooks) |
-| **Vite** | 5 | Build tool & dev server |
+| **React** | 19 | UI library (functional components + hooks) |
+| **Vite** | 8 | Build tool & dev server |
 | **Tailwind CSS** | v3 | Utility-first CSS framework |
-| **React Router** | v6 | Client-side routing & navigation |
+| **React Router** | v7 | Client-side routing & navigation |
 | **Axios** | — | HTTP client with interceptors |
 | **Recharts** | — | Data visualization (charts & graphs) |
 | **React Hot Toast** | — | Toast notification system |
@@ -107,7 +111,7 @@ The platform includes public analytics dashboards, paginated data views, issue a
 - Role-based access control: **Citizen** and **Admin** roles
 - Secure password hashing with BCrypt
 - Auto-redirect based on role after login
-- Token stored in `localStorage` with auto-refresh interceptors
+- Token stored in `localStorage`; an expired or invalid token redirects to login (there are no refresh tokens)
 
 ### 📝 Issue Reporting (Citizen)
 - Report civic issues with title, description, and category
@@ -172,7 +176,7 @@ The platform includes public analytics dashboards, paginated data views, issue a
 CivicPulse/
 ├── backend/                          # Spring Boot API
 │   ├── src/main/java/com/civicpulse/
-│   │   ├── config/                   # Security, CORS, WebSocket, Cloudinary, JWT filter
+│   │   ├── config/                   # Security, CORS, WebSocket, Cloudinary, JWT filter, admin seeding
 │   │   ├── controller/               # REST controllers (Auth, Issue, Admin, Analytics, Notification)
 │   │   ├── dto/
 │   │   │   ├── request/              # IssueCreateRequest, IssueUpdateRequest, LoginRequest, RegisterRequest
@@ -184,7 +188,7 @@ CivicPulse/
 │   │   └── service/                  # Business logic (Issue, Admin, Auth, Email, Notification, Analytics, Cloudinary, JWT)
 │   ├── src/main/resources/
 │   │   ├── application.yml           # Config (DB, JPA, Mail, JWT, Cloudinary)
-│   │   └── data.sql                  # Seed data
+│   │   └── application-prod.yml      # Production config (Render env vars)
 │   ├── Dockerfile                    # Production container
 │   └── pom.xml                       # Maven dependencies
 │
@@ -257,7 +261,7 @@ CivicPulse/
 ### Admin
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `GET` | `/api/admin/issues` | List all issues (admin view) | Admin |
+| `GET` | `/api/admin/issues` | List all issues (paginated; filters: category, status, priority, keyword) | Admin |
 | `PUT` | `/api/admin/issues/{id}/status` | Update issue status | Admin |
 | `PUT` | `/api/admin/issues/{id}/priority` | Set issue priority | Admin |
 | `PUT` | `/api/admin/issues/{id}/assign` | Assign issue to admin | Admin |
@@ -268,6 +272,7 @@ CivicPulse/
 | `GET` | `/api/analytics/summary` | Dashboard KPI stats | No |
 | `GET` | `/api/analytics/by-category` | Issues grouped by category | No |
 | `GET` | `/api/analytics/by-status` | Issues grouped by status | No |
+| `GET` | `/api/analytics/trends` | Issues per day, last 30 days | No |
 
 ### Notifications
 | Method | Endpoint | Description | Auth |
@@ -287,10 +292,10 @@ CivicPulse/
 ## 💻 Local Setup
 
 ### Prerequisites
-- Java 25+ (or 17+ with adjustment in `pom.xml`)
+- Java 17+ (the Docker build uses JDK 21; `pom.xml` targets Java 17)
 - Node.js 20+
 - PostgreSQL (local or remote)
-- A free [Cloudinary](https://cloudinary.com/) account
+- A free [Cloudinary](https://cloudinary.com/) account (required: the backend refuses to start without Cloudinary credentials)
 
 ### 1. Clone the Repository
 ```bash
@@ -304,6 +309,12 @@ cd backend
 
 # Create a PostgreSQL database named 'civicpulse'
 # Default expects localhost:5432, user: postgres, pass: postgres
+
+# Required env vars (no defaults — the app will not start without them):
+#   JWT_SECRET             signing key, generate with: openssl rand -base64 32
+#   CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+# Optional, to create the first admin account at startup:
+#   ADMIN_EMAIL, ADMIN_PASSWORD   (min 8 characters)
 
 # Run the application
 ./mvnw spring-boot:run        # Linux/Mac
@@ -329,12 +340,12 @@ Frontend starts on `http://localhost:5173`
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `PORT` | Server port | `8080` |
-| `DB_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://host:5432/civicpulse` |
-| `DB_USERNAME` | Database username | `postgres` |
-| `DB_PASSWORD` | Database password | `your-password` |
-| `JWT_SECRET` | 256-bit+ signing key (Base64) | `Y2l2aWNwdWxzZS1q...` |
+| `DB_URL` / `DB_USERNAME` / `DB_PASSWORD` | PostgreSQL connection (default profile) | `jdbc:postgresql://localhost:5432/civicpulse` |
+| `DATABASE_URL` / `DATABASE_USERNAME` / `DATABASE_PASSWORD` | PostgreSQL connection (`prod` profile, used by the Dockerfile) | `jdbc:postgresql://host:5432/civicpulse` |
+| `JWT_SECRET` | **Required.** 256-bit+ signing key (Base64). No default. | `openssl rand -base64 32` |
 | `JWT_EXPIRATION` | Token expiry in ms | `86400000` (24h) |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | `your-cloud` |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | First admin account, created at startup when both are set (password min 8 chars). No default credentials exist. | `admin@example.com` |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name (**required to boot**) | `your-cloud` |
 | `CLOUDINARY_API_KEY` | Cloudinary API key | `123456789` |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret | `your-secret` |
 | `FRONTEND_URL` | CORS allowed origin | `https://your-frontend.onrender.com` |
@@ -374,6 +385,9 @@ Frontend starts on `http://localhost:5173`
 ### 4. Email Setup (Optional)
 - Add `MAIL_USERNAME` and `MAIL_APP_PASSWORD` to backend environment
 - Emails are automatically sent when admin updates issue status
+
+### 5. First Admin Account
+- Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in the backend environment before the first deploy (or before the next restart). The account is created once at startup; changing the variables later does not change the existing account's password.
 
 ---
 
