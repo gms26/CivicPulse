@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 
 export const AdminAnalytics = () => {
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [data, setData] = useState({
     summary: null,
     byCategory: null,
@@ -17,6 +19,7 @@ export const AdminAnalytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const [summary, byCategory, byStatus, trends] = await Promise.all([
           getSummary(),
@@ -24,19 +27,35 @@ export const AdminAnalytics = () => {
           getByStatus(),
           getTrends()
         ]);
-        
+
         setData({ summary, byCategory, byStatus, trends });
-      } catch (err) {
+      } catch {
+        setLoadError(true);
         toast.error('Failed to load analytics data');
       } finally {
         setLoading(false);
       }
     };
     fetchAnalytics();
-  }, []);
+  }, [retryCount]);
 
   if (loading) {
     return <div className="min-h-[calc(100vh-64px)] flex items-center justify-center"><Loader /></div>;
+  }
+
+  if (loadError || !data.summary) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center gap-4 px-4 text-center">
+        <p className="text-lg font-medium text-gray-900">Could not load analytics</p>
+        <p className="text-sm text-gray-500">The server did not respond. Please try again.</p>
+        <button
+          onClick={() => setRetryCount((count) => count + 1)}
+          className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   const { summary, byCategory, byStatus, trends } = data;

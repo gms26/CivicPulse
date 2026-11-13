@@ -64,7 +64,7 @@ export const ReportIssuePage = () => {
       await createIssue(payload);
       toast.success('Issue reported successfully!');
       navigate('/citizen/dashboard');
-    } catch (err) {
+    } catch {
       toast.error('Failed to report issue. Please try again.');
     } finally {
       setIsLoading(false);
@@ -181,7 +181,7 @@ export const ReportIssuePage = () => {
                           </label>
                           <p className="pl-1">or drag and drop</p>
                         </div>
-                        <p className="text-xs text-gray-500 font-medium">PNG, JPG up to 5MB</p>
+                        <p className="text-xs text-gray-500 font-medium">Images only, up to 10MB</p>
                       </>
                     )}
                   </div>

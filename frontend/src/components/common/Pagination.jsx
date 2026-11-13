@@ -74,7 +74,7 @@ export const Pagination = ({ currentPage, totalPages, totalElements, pageSize, o
 
         {/* Page numbers */}
         <div className="flex items-center gap-1">
-          {pageNumbers.map((item, idx) =>
+          {pageNumbers.map((item) =>
             item.type === 'ellipsis' ? (
               <span key={item.key} className="px-2 py-2 text-sm text-gray-400">
                 …

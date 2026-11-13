@@ -9,56 +9,59 @@ import { FileText } from 'lucide-react';
 export const AdminDashboard = () => {
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [keyword, setKeyword] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
-  
+
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const [selectedIssue, setSelectedIssue] = useState(null);
 
   const PAGE_SIZE = 10;
 
-  const fetchIssues = async () => {
-    setLoading(true);
-    try {
-      // The backend accepts category, status, priority, and search keyword
-      const params = {
-        page,
-        size: PAGE_SIZE,
-        ...(categoryFilter && { category: categoryFilter }),
-        ...(statusFilter && { status: statusFilter }),
-        ...(priorityFilter && { priority: priorityFilter }),
-        ...(keyword && { search: keyword }),
-      };
-      
-      const data = await getAdminIssues(params);
-      setIssues(data.content);
-      setTotalPages(data.totalPages);
-      setTotalElements(data.totalElements);
-    } catch (err) {
-      toast.error('Failed to load issues');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchIssues = async () => {
+      setLoading(true);
+      try {
+        // The backend accepts category, status, priority, and keyword.
+        const params = {
+          page,
+          size: PAGE_SIZE,
+          ...(categoryFilter && { category: categoryFilter }),
+          ...(statusFilter && { status: statusFilter }),
+          ...(priorityFilter && { priority: priorityFilter }),
+          ...(keyword && { keyword }),
+        };
+
+        const data = await getAdminIssues(params);
+        setIssues(data.content);
+        setTotalPages(data.totalPages);
+        setTotalElements(data.totalElements);
+      } catch {
+        toast.error('Failed to load issues');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     // Debounce keyword search slightly
     const timer = setTimeout(() => {
       fetchIssues();
     }, 300);
     return () => clearTimeout(timer);
-  }, [page, statusFilter, categoryFilter, priorityFilter, keyword]);
+  }, [page, statusFilter, categoryFilter, priorityFilter, keyword, refreshKey]);
+
+  const refreshIssues = () => setRefreshKey((key) => key + 1);
 
   // Real-time refresh when new WebSocket notification arrives (e.g., someone creates a new issue)
   useWebSocket(() => {
     if (page === 0) {
-      fetchIssues();
+      refreshIssues();
     }
   });
 
@@ -70,7 +73,7 @@ export const AdminDashboard = () => {
         <p className="text-primary text-sm font-medium mt-2">Total Issues: {totalElements}</p>
       </div>
 
-      <IssueFilters 
+      <IssueFilters
         keyword={keyword} setKeyword={setKeyword}
         statusFilter={statusFilter} setStatusFilter={setStatusFilter}
         categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter}
@@ -88,9 +91,9 @@ export const AdminDashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {issues.map(issue => (
-            <IssueCard 
-              key={issue.id} 
-              issue={issue} 
+            <IssueCard
+              key={issue.id}
+              issue={issue}
               onClick={() => setSelectedIssue(issue)}
             />
           ))}
@@ -108,15 +111,12 @@ export const AdminDashboard = () => {
         />
       )}
 
-      <IssueDetailModal 
+      <IssueDetailModal
         isOpen={!!selectedIssue}
         onClose={() => setSelectedIssue(null)}
         issue={selectedIssue}
         onIssueUpdated={() => {
-          fetchIssues();
-          // Keep modal open to show updated data, it will re-render because we fetch updated list
-          // which updates the issue ref indirectly if we wanted to map it, but for simplicity
-          // the user will see changes when they close, or we can close it:
+          refreshIssues();
           setSelectedIssue(null);
         }}
       />

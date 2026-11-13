@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyIssues } from '../api/issueApi';
-import { Loader, Modal, Pagination } from '../components/common';
+import { Loader, Pagination } from '../components/common';
 import { IssueCard, IssueFilters, IssueDetailModal } from '../components/issues';
 import { Plus, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -14,41 +14,43 @@ export const CitizenDashboard = () => {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const [selectedIssue, setSelectedIssue] = useState(null);
 
   const PAGE_SIZE = 10;
 
-  const fetchIssues = async () => {
-    setLoading(true);
-    try {
-      const data = await getMyIssues({ page, size: PAGE_SIZE });
-      let content = data.content;
-      
-      if (statusFilter) {
-        content = content.filter(issue => issue.status === statusFilter);
-      }
-      if (keyword) {
-        const lowerKeyword = keyword.toLowerCase();
-        content = content.filter(issue => 
-          issue.title.toLowerCase().includes(lowerKeyword) || 
-          issue.locationAddress.toLowerCase().includes(lowerKeyword)
-        );
-      }
-
-      setIssues(content);
-      setTotalPages(data.totalPages);
-      setTotalElements(data.totalElements);
-    } catch (err) {
-      toast.error('Failed to load your issues.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchIssues = async () => {
+      setLoading(true);
+      try {
+        const data = await getMyIssues({ page, size: PAGE_SIZE });
+        let content = data.content;
+
+        if (statusFilter) {
+          content = content.filter(issue => issue.status === statusFilter);
+        }
+        if (keyword) {
+          const lowerKeyword = keyword.toLowerCase();
+          content = content.filter(issue =>
+            issue.title.toLowerCase().includes(lowerKeyword) ||
+            (issue.locationAddress || '').toLowerCase().includes(lowerKeyword)
+          );
+        }
+
+        setIssues(content);
+        setTotalPages(data.totalPages);
+        setTotalElements(data.totalElements);
+      } catch {
+        toast.error('Failed to load your issues.');
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchIssues();
-  }, [page, statusFilter, keyword]);
+  }, [page, statusFilter, keyword, refreshKey]);
+
+  const refreshIssues = () => setRefreshKey((key) => key + 1);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -57,15 +59,15 @@ export const CitizenDashboard = () => {
           <h1 className="text-2xl font-bold text-gray-900">My Reported Issues</h1>
           <p className="text-gray-500 text-sm mt-1">Track the status of your civic reports</p>
         </div>
-        <Link 
-          to="/citizen/report" 
+        <Link
+          to="/citizen/report"
           className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
         >
           <Plus size={18} /> New Report
         </Link>
       </div>
 
-      <IssueFilters 
+      <IssueFilters
         keyword={keyword} setKeyword={setKeyword}
         statusFilter={statusFilter} setStatusFilter={setStatusFilter}
       />
@@ -81,9 +83,9 @@ export const CitizenDashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {issues.map(issue => (
-            <IssueCard 
-              key={issue.id} 
-              issue={issue} 
+            <IssueCard
+              key={issue.id}
+              issue={issue}
               onClick={() => setSelectedIssue(issue)}
             />
           ))}
@@ -101,11 +103,11 @@ export const CitizenDashboard = () => {
         />
       )}
 
-      <IssueDetailModal 
+      <IssueDetailModal
         isOpen={!!selectedIssue}
         onClose={() => setSelectedIssue(null)}
         issue={selectedIssue}
-        onIssueUpdated={fetchIssues}
+        onIssueUpdated={refreshIssues}
       />
     </div>
   );

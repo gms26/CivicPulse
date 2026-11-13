@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal, Button, StatusBadge } from '../common';
 import { IssueTimeline } from './IssueTimeline';
 import { updateIssueStatus, updateIssuePriority, assignIssue } from '../../api/adminApi';
-import { getIssueTimeline } from '../../api/issueApi';
+import { getIssueTimeline, deleteIssue } from '../../api/issueApi';
 import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
-import { MapPin, Calendar, User as UserIcon, Clock, FileText } from 'lucide-react';
+import { MapPin, Calendar, User as UserIcon, Clock, FileText, Trash2 } from 'lucide-react';
 
 export const IssueDetailModal = ({ isOpen, onClose, issue, onIssueUpdated }) => {
   const { isAdmin } = useAuth();
@@ -25,16 +25,20 @@ export const IssueDetailModal = ({ isOpen, onClose, issue, onIssueUpdated }) => 
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [timelineFetched, setTimelineFetched] = useState(false);
 
-  // Sync state when issue changes
-  useEffect(() => {
-    if (issue) {
-      setStatus(issue.status);
-      setPriority(issue.priority || 'LOW');
-      setActiveTab('details');
-      setTimelineFetched(false);
-      setTimeline([]);
-    }
-  }, [issue]);
+  // Reset per-issue state when a different issue is opened. This adjusts
+  // state during render (the React docs pattern for syncing state to a
+  // changed prop) instead of syncing it from an effect.
+  const [prevIssueId, setPrevIssueId] = useState(issue?.id);
+  if (issue && issue.id !== prevIssueId) {
+    setPrevIssueId(issue.id);
+    setStatus(issue.status);
+    setPriority(issue.priority || 'LOW');
+    setActiveTab('details');
+    setTimelineFetched(false);
+    setTimeline([]);
+    setStatusComment('');
+    setAssigneeId('');
+  }
 
   // Fetch timeline when tab is clicked
   const handleTabChange = async (tab) => {
@@ -45,7 +49,7 @@ export const IssueDetailModal = ({ isOpen, onClose, issue, onIssueUpdated }) => 
         const data = await getIssueTimeline(issue.id);
         setTimeline(data);
         setTimelineFetched(true);
-      } catch (err) {
+      } catch {
         toast.error('Failed to load timeline');
       } finally {
         setTimelineLoading(false);
@@ -65,7 +69,7 @@ export const IssueDetailModal = ({ isOpen, onClose, issue, onIssueUpdated }) => 
       setStatusComment('');
       // Refresh timeline if it was already loaded
       setTimelineFetched(false);
-    } catch (err) {
+    } catch {
       toast.error('Failed to update status');
     } finally {
       setIsUpdating(false);
@@ -79,7 +83,7 @@ export const IssueDetailModal = ({ isOpen, onClose, issue, onIssueUpdated }) => 
       await updateIssuePriority(issue.id, priority);
       toast.success('Priority updated successfully');
       onIssueUpdated();
-    } catch (err) {
+    } catch {
       toast.error('Failed to update priority');
     } finally {
       setIsUpdating(false);
@@ -96,6 +100,21 @@ export const IssueDetailModal = ({ isOpen, onClose, issue, onIssueUpdated }) => 
       setAssigneeId('');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to assign issue');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this report? This cannot be undone.')) return;
+    setIsUpdating(true);
+    try {
+      await deleteIssue(issue.id);
+      toast.success('Issue deleted');
+      onClose();
+      onIssueUpdated();
+    } catch {
+      toast.error('Failed to delete issue');
     } finally {
       setIsUpdating(false);
     }
@@ -170,6 +189,21 @@ export const IssueDetailModal = ({ isOpen, onClose, issue, onIssueUpdated }) => 
                 <span>Assigned Admin: <br/><span className="font-medium text-gray-900">{issue.assignedAdminName || 'Unassigned'}</span></span>
               </div>
             </div>
+
+            {/* CITIZEN ACTIONS: delete own report */}
+            {!isAdmin && (
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleDelete}
+                  disabled={isUpdating}
+                  className="w-full text-danger border-danger/30 hover:bg-danger/10 flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={14} /> Delete this report
+                </Button>
+              </div>
+            )}
 
             {/* ADMIN ACTIONS */}
             {isAdmin && (

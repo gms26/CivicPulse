@@ -12,6 +12,8 @@ const STATUS_COLORS = {
 
 export const PublicDashboard = () => {
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [data, setData] = useState({
     summary: null,
     byCategory: [],
@@ -20,8 +22,13 @@ export const PublicDashboard = () => {
 
   useEffect(() => {
     let retryTimeout;
+    let cancelled = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 12; // ~60s of retries, then show an error, never spin forever
 
     const fetchPublicData = async () => {
+      setLoading(true);
+      setLoadError(false);
       try {
         const [summaryData, categoryData, statusData] = await Promise.all([
           getSummary(),
@@ -42,14 +49,22 @@ export const PublicDashboard = () => {
           rawKey: key
         })).filter(item => item.value > 0);
 
+        if (cancelled) return;
         setData({
           summary: summaryData,
           byCategory: formattedCategory,
           byStatus: formattedStatus
         });
         setLoading(false);
-      } catch (err) {
-        console.warn("Server unavailable, retrying in 5 seconds...");
+      } catch {
+        attempts += 1;
+        if (cancelled) return;
+        if (attempts >= MAX_ATTEMPTS) {
+          setLoadError(true);
+          setLoading(false);
+          return;
+        }
+        console.warn(`Server unavailable, retrying in 5 seconds... (attempt ${attempts}/${MAX_ATTEMPTS})`);
         retryTimeout = setTimeout(fetchPublicData, 5000);
       }
     };
@@ -57,9 +72,10 @@ export const PublicDashboard = () => {
     fetchPublicData();
 
     return () => {
+      cancelled = true;
       if (retryTimeout) clearTimeout(retryTimeout);
     };
-  }, []);
+  }, [retryCount]);
 
   if (loading) {
     return (
@@ -67,6 +83,21 @@ export const PublicDashboard = () => {
         <Loader />
         <p className="mt-4 text-primary font-medium animate-pulse text-lg">Starting server, please wait...</p>
         <p className="text-gray-500 text-sm mt-2">Free tier servers may take up to 50 seconds to wake up.</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
+        <p className="text-lg font-medium text-gray-900">The server is not responding</p>
+        <p className="text-gray-500 text-sm mt-2">It may still be waking up, or it may be down. Please try again.</p>
+        <button
+          onClick={() => setRetryCount((count) => count + 1)}
+          className="mt-6 px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
+        >
+          Retry
+        </button>
       </div>
     );
   }

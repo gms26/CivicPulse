@@ -29,7 +29,7 @@ export const RegisterPage = () => {
       // Auto-login after successful registration
       login({ email: data.email, fullName: data.fullName, role: data.role }, data.token);
       toast.success('Registration successful! Welcome to CivicPulse.');
-      navigate('/citizen');
+      navigate('/citizen/dashboard');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed. Try again.');
     } finally {

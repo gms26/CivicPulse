@@ -1,27 +1,24 @@
-import { createContext, useState, useEffect } from 'react';
+import { useState } from 'react';
+import { AuthContext } from './auth-context';
 
-export const AuthContext = createContext(null);
+const readStoredUser = () => {
+  const storedUser = localStorage.getItem('user');
+  if (!storedUser) return null;
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    return null;
+  }
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
-    }
-    setLoading(false);
-  }, []);
+  // Lazy initializers read the stored session synchronously, so there is no
+  // loading flash and no effect that sets state on mount.
+  const [user, setUser] = useState(readStoredUser);
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [loading] = useState(false);
 
   const login = (userData, jwtToken) => {
     setUser(userData);
@@ -41,7 +38,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, logout, isAdmin }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
