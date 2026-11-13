@@ -147,7 +147,7 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public Page<IssueResponse> getAllIssues(String categoryStr, String statusStr, String keyword, Pageable pageable) {
+    public Page<IssueResponse> getAllIssues(String categoryStr, String statusStr, String priorityStr, String keyword, Pageable pageable) {
         IssueCategory category = null;
         if (categoryStr != null && !categoryStr.isEmpty()) {
             try {
@@ -162,7 +162,16 @@ public class AdminService {
             } catch (IllegalArgumentException ignored) {}
         }
 
-        Page<Issue> issues = issueRepository.searchIssues(category, status, keyword, pageable);
+        Priority priority = null;
+        if (priorityStr != null && !priorityStr.isEmpty()) {
+            try {
+                priority = Priority.valueOf(priorityStr.toUpperCase());
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+        String normalizedKeyword = (keyword == null || keyword.isBlank()) ? null : keyword;
+
+        Page<Issue> issues = issueRepository.searchIssues(category, status, priority, normalizedKeyword, pageable);
         return issues.map(this::mapToResponse);
     }
 

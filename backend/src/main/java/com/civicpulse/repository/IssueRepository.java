@@ -3,6 +3,7 @@ package com.civicpulse.repository;
 import com.civicpulse.entity.Issue;
 import com.civicpulse.entity.enums.IssueCategory;
 import com.civicpulse.entity.enums.IssueStatus;
+import com.civicpulse.entity.enums.Priority;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,11 +31,13 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     @Query("SELECT i FROM Issue i WHERE " +
            "(:category IS NULL OR i.category = :category) AND " +
            "(:status IS NULL OR i.status = :status) AND " +
-           "(:keyword IS NULL OR LOWER(i.title) LIKE LOWER(CONCAT('%', cast(:keyword as string), '%')) " +
-           "OR LOWER(i.locationAddress) LIKE LOWER(CONCAT('%', cast(:keyword as string), '%')))")
+           "(:priority IS NULL OR i.priority = :priority) AND " +
+           "(:keyword IS NULL OR (LOWER(i.title) LIKE LOWER(CONCAT('%', cast(:keyword as string), '%')) " +
+           "OR LOWER(i.locationAddress) LIKE LOWER(CONCAT('%', cast(:keyword as string), '%'))))")
     Page<Issue> searchIssues(
             @Param("category") IssueCategory category,
             @Param("status") IssueStatus status,
+            @Param("priority") Priority priority,
             @Param("keyword") String keyword,
             Pageable pageable
     );

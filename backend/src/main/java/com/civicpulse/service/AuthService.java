@@ -53,7 +53,7 @@ public class AuthService implements UserDetailsService {
                 throw new BadRequestException("An account with this email already exists");
             }
 
-            // Build and save the new user (always as CITIZEN — admins are seeded via data.sql)
+            // Build and save the new user (always as CITIZEN — admins are created by AdminSeeder from env vars)
             User user = User.builder()
                     .fullName(request.getFullName())
                     .email(request.getEmail())

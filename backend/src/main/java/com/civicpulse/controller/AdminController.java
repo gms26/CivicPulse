@@ -29,10 +29,11 @@ public class AdminController {
     public ResponseEntity<Page<IssueResponse>> getAllIssues(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority,
             @RequestParam(required = false) String keyword,
             Pageable pageable) {
 
-        Page<IssueResponse> issues = adminService.getAllIssues(category, status, keyword, pageable);
+        Page<IssueResponse> issues = adminService.getAllIssues(category, status, priority, keyword, pageable);
         return ResponseEntity.ok(issues);
     }
 
