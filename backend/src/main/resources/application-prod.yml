@@ -26,13 +26,6 @@ spring:
             non_contextual_creation: true
     show-sql: false
     open-in-view: false
-    # Run data.sql AFTER Hibernate creates/updates tables
-    defer-datasource-initialization: true
-
-  # ==================== SQL Init (data.sql seed) ====================
-  sql:
-    init:
-      mode: always
 
   # ==================== Multipart File Upload ====================
   servlet:
@@ -48,7 +41,4 @@ app:
 
 # ==================== Cloudinary Configuration ====================
 # Configuration is now read directly via @Value in CloudinaryConfig.java
-
-# ==================== CORS Configuration ====================
-frontend:
-  url: ${FRONTEND_URL}
+# CORS and email-link origins come from FRONTEND_URL in application.yml.

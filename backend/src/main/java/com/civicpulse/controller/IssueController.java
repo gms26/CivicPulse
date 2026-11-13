@@ -5,7 +5,6 @@ import com.civicpulse.dto.response.IssueResponse;
 import com.civicpulse.dto.response.IssueUpdateResponse;
 import com.civicpulse.entity.User;
 import com.civicpulse.service.IssueService;
-import com.civicpulse.service.CloudinaryService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -25,11 +23,9 @@ import java.util.List;
 public class IssueController {
 
     private final IssueService issueService;
-    private final CloudinaryService cloudinaryService;
 
-    public IssueController(IssueService issueService, CloudinaryService cloudinaryService) {
+    public IssueController(IssueService issueService) {
         this.issueService = issueService;
-        this.cloudinaryService = cloudinaryService;
     }
 
     /**
@@ -42,7 +38,7 @@ public class IssueController {
     public ResponseEntity<IssueResponse> createIssue(
             @RequestPart("data") @Valid IssueCreateRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image,
-            @AuthenticationPrincipal User reporter) throws IOException {
+            @AuthenticationPrincipal User reporter) {
 
         IssueResponse response = issueService.createIssue(request, image, reporter);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -110,16 +106,5 @@ public class IssueController {
     public ResponseEntity<List<IssueUpdateResponse>> getIssueTimeline(@PathVariable Long id) {
         List<IssueUpdateResponse> timeline = issueService.getIssueTimeline(id);
         return ResponseEntity.ok(timeline);
-    }
-
-    @GetMapping("/test-cloudinary")
-    public ResponseEntity<String> testCloudinary() {
-        try {
-            String result = cloudinaryService.testConnection();
-            return ResponseEntity.ok("Cloudinary OK: " + result);
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body("Cloudinary FAILED: " + e.getMessage());
-        }
     }
 }

@@ -18,15 +18,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    # Run data.sql AFTER Hibernate creates/updates tables
-    defer-datasource-initialization: true
-
-  # ==================== SQL Init (data.sql seed) ====================
-  sql:
-    init:
-      mode: always
-
-  # ==================== Multipart File Upload ====================
+    # ==================== Multipart File Upload ====================
   servlet:
     multipart:
       max-file-size: 10MB
@@ -46,9 +38,12 @@ spring:
             enable: true
 
 # ==================== JWT Configuration ====================
+# JWT_SECRET is required: there is no fallback value. A committed default
+# would let anyone forge tokens, so the app refuses to start without it.
+# Generate one with: openssl rand -base64 32
 app:
   jwt:
-    secret: ${JWT_SECRET:Y2l2aWNwdWxzZS1qd3Qtc2VjcmV0LWtleS1tdXN0LWJlLWF0LWxlYXN0LTI1Ni1iaXRzLWxvbmctZm9yLWhzMjU2}
+    secret: ${JWT_SECRET}
     expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds
 
 # ==================== Cloudinary Configuration ====================

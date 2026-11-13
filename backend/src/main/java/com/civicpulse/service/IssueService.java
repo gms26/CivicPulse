@@ -9,6 +9,7 @@ import com.civicpulse.entity.User;
 import com.civicpulse.entity.enums.IssueCategory;
 import com.civicpulse.entity.enums.IssueStatus;
 import com.civicpulse.entity.enums.Priority;
+import com.civicpulse.exception.BadRequestException;
 import com.civicpulse.exception.ResourceNotFoundException;
 import com.civicpulse.exception.UnauthorizedException;
 import com.civicpulse.repository.IssueRepository;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,66 +40,37 @@ public class IssueService {
     }
 
     @Transactional
-    public IssueResponse createIssue(IssueCreateRequest request, MultipartFile image, User reporter) throws IOException {
+    public IssueResponse createIssue(IssueCreateRequest request, MultipartFile image, User reporter) {
+        IssueCategory category;
         try {
-            log.info("=== ISSUE CREATION START ===");
-            log.info("Reporter: id={}, email={}", reporter != null ? reporter.getId() : "NULL", reporter != null ? reporter.getEmail() : "NULL");
-            log.info("Request: title={}, category={}, locationAddress={}, lat={}, lon={}",
-                request.getTitle(), request.getCategory(), request.getLocationAddress(),
-                request.getLatitude(), request.getLongitude());
-            log.info("Image present: {}", image != null && !image.isEmpty());
-
-            // Step 1: Image upload
-            String imageUrl = null;
-            if (image != null && !image.isEmpty()) {
-                try {
-                    log.info("Step 1: Uploading image, size={} bytes", image.getSize());
-                    imageUrl = cloudinaryService.uploadImage(image);
-                    log.info("Step 1: Image uploaded OK: {}", imageUrl);
-                } catch (Exception e) {
-                    log.warn("Step 1: Image upload failed, saving without image: {}", e.getMessage());
-                    imageUrl = null;
-                }
-            } else {
-                log.info("Step 1: No image to upload, skipping");
-            }
-
-            // Step 2: Build Issue entity
-            log.info("Step 2: Building Issue entity...");
-            Issue issue = new Issue();
-            issue.setTitle(request.getTitle());
-            issue.setDescription(request.getDescription());
-            
-            log.info("Step 2a: Parsing category: '{}'", request.getCategory());
-            issue.setCategory(IssueCategory.valueOf(request.getCategory().toUpperCase()));
-            
-            issue.setLocationAddress(request.getLocationAddress());
-            issue.setLatitude(request.getLatitude());
-            issue.setLongitude(request.getLongitude());
-            issue.setImageUrl(imageUrl);
-            issue.setReporter(reporter);
-            issue.setStatus(IssueStatus.OPEN);
-            issue.setPriority(Priority.LOW);
-            log.info("Step 2: Issue entity built OK");
-
-            // Step 3: Save to DB
-            log.info("Step 3: Saving issue to database...");
-            Issue savedIssue = issueRepository.save(issue);
-            log.info("Step 3: Issue saved with id={}", savedIssue.getId());
-
-            // Step 4: Map to response
-            log.info("Step 4: Mapping to response...");
-            IssueResponse response = mapToResponse(savedIssue);
-            log.info("=== ISSUE CREATION SUCCESS, id={} ===", savedIssue.getId());
-            return response;
-
-        } catch (Exception e) {
-            log.error("=== ISSUE CREATION FAILED ===");
-            log.error("Exception type: {}", e.getClass().getName());
-            log.error("Exception message: {}", e.getMessage());
-            log.error("Full stack trace:", e);
-            throw e;
+            category = IssueCategory.valueOf(request.getCategory().toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new BadRequestException("Invalid category: " + request.getCategory());
         }
+
+        // A failed upload must fail the report: silently saving without the
+        // attached photo would mislead the reporter into thinking the
+        // evidence was stored.
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = cloudinaryService.uploadImage(image);
+        }
+
+        Issue issue = new Issue();
+        issue.setTitle(request.getTitle());
+        issue.setDescription(request.getDescription());
+        issue.setCategory(category);
+        issue.setLocationAddress(request.getLocationAddress());
+        issue.setLatitude(request.getLatitude());
+        issue.setLongitude(request.getLongitude());
+        issue.setImageUrl(imageUrl);
+        issue.setReporter(reporter);
+        issue.setStatus(IssueStatus.OPEN);
+        issue.setPriority(Priority.LOW);
+
+        Issue savedIssue = issueRepository.save(issue);
+        log.info("Issue created: id={}, reporterId={}", savedIssue.getId(), reporter.getId());
+        return mapToResponse(savedIssue);
     }
 
     @Transactional(readOnly = true)
@@ -118,15 +89,15 @@ public class IssueService {
             } catch (IllegalArgumentException ignored) {}
         }
 
-        Page<Issue> issues = issueRepository.searchIssues(category, status, keyword, pageable);
-        return issues.map(this::mapToResponse);
+        Page<Issue> issues = issueRepository.searchIssues(category, status, null, normalizeKeyword(keyword), pageable);
+        return issues.map(this::mapToPublicResponse);
     }
 
     @Transactional(readOnly = true)
     public IssueResponse getIssueById(Long id) {
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Issue not found with id: " + id));
-        return mapToResponse(issue);
+        return mapToPublicResponse(issue);
     }
 
     @Transactional(readOnly = true)
@@ -180,6 +151,23 @@ public class IssueService {
         }
 
         return timeline;
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return (keyword == null || keyword.isBlank()) ? null : keyword;
+    }
+
+    /**
+     * Public view of an issue: the reporter's email and exact coordinates
+     * are withheld. These endpoints need no login, so they must not expose
+     * personal data or precise locations.
+     */
+    private IssueResponse mapToPublicResponse(Issue issue) {
+        IssueResponse response = mapToResponse(issue);
+        response.setReporterEmail(null);
+        response.setLatitude(null);
+        response.setLongitude(null);
+        return response;
     }
 
     private IssueResponse mapToResponse(Issue issue) {
